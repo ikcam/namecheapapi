@@ -660,7 +660,7 @@ class DomainAPI(Session):
                         'Type': host.get('Type'),
                         'Name': host.get('Name'),
                         'Address': host.get('Address'),
-                        'MXpref': host.get('MXPref'),
+                        'MXPref': host.get('MXPref'),
                         'TTL': host.get('TTL')
                     } for host in xml
                 ]
