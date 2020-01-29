@@ -652,7 +652,7 @@ class DomainAPI(Session):
 
         return {
             'Domain': xml.get('Domain'),
-            'IsUsingOurDNS': xml.get('IsUsingOurDNS') == 'true',
+            'IsUsingOurDNS': xml.get('IsUsingOurDNS').lower() == 'true',
             'Hosts':
                 [
                     {
@@ -666,8 +666,20 @@ class DomainAPI(Session):
                 ]
         }
 
-    def set_host_records(self):
-        pass
+    def set_host_records(self, domain: typing.Sequence,
+                         host_records: typing.Iterable) -> bool:
+        host_name, tld = self._normalize_domain(domain)
+        query = self._normalize_host_records(host_records)
+        query.update({
+            'SLD': host_name,
+            'TLD': tld
+        })
+
+        xml = self._call(
+            DOMAINS_SET_HOSTS, query).find(
+            self._tag('DomainDNSSetHostsResult'))
+
+        return xml.get('IsSuccess').lower() == 'true'
 
     def get_email_forwarding(self):
         pass
@@ -697,6 +709,21 @@ class DomainAPI(Session):
                             'a sequence of two strings (domain and TLD).')
 
         return host_name, tld
+
+    def _normalize_host_records(self, host_records: typing.Iterable) -> tuple:
+        index = 1
+        final_records = {}
+
+        for record in host_records:
+            final_records[f'HostName{index}'] = record['Name']
+            final_records[f'RecordType{index}'] = record['Type']
+            final_records[f'Address{index}'] = record['Address']
+            final_records[f'MXPref{index}'] = record['MXPref']
+            if 'TTL' in record:
+                final_records[f'TTL{index}'] = record['TTL']
+            index += 1
+
+        return final_records
 
     def _build_address_dict(self, address: dict) -> dict:
 
