@@ -650,6 +650,9 @@ class DomainAPI(Session):
             DOMAINS_GET_HOSTS, {'SLD': host_name, 'TLD': tld}).find(
                 self._tag('DomainDNSGetHostsResult'))
 
+        import pdb
+        pdb.set_trace()
+
         return {
             'Domain': xml.get('Domain'),
             'IsUsingOurDNS': xml.get('IsUsingOurDNS') == 'true',
