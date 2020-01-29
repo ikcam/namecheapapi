@@ -643,8 +643,27 @@ class DomainAPI(Session):
                 [ns.text for ns in xml.findall(self._tag('Nameserver'))]
         }
 
-    def get_host_records(self):
-        pass
+    def get_host_records(self, domain: typing.Sequence) -> dict:
+        host_name, tld = self._normalize_domain(domain)
+
+        xml = self._call(
+            DOMAINS_GET_HOSTS, {'SLD': host_name, 'TLD': tld}).find(
+                self._tag('DomainDNSGetHostsResult'))
+
+        return {
+            'Domain': xml.get('Domain'),
+            'IsUsingOurDNS': xml.get('IsUsingOurDNS') == 'true',
+            'Hosts':
+                [
+                    {
+                        'HostId': host.get('HostId'),
+                        'Name': host.get('Name'),
+                        'Address': host.get('Address'),
+                        'MXpref': host.get('MXPref'),
+                        'TTL': host.get('TTL')
+                    } for host in xml.findall(self._tag('Host'))
+                ]
+        }
 
     def set_host_records(self):
         pass
