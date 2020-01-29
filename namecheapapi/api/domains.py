@@ -657,6 +657,7 @@ class DomainAPI(Session):
                 [
                     {
                         'HostId': host.get('HostId'),
+                        'Type': host.get('Type'),
                         'Name': host.get('Name'),
                         'Address': host.get('Address'),
                         'MXpref': host.get('MXPref'),
