@@ -718,7 +718,8 @@ class DomainAPI(Session):
             final_records[f'HostName{index}'] = record['Name']
             final_records[f'RecordType{index}'] = record['Type']
             final_records[f'Address{index}'] = record['Address']
-            final_records[f'MXPref{index}'] = record['MXPref']
+            if 'MXPref' in record:
+                final_records[f'MXPref{index}'] = record['MXPref']
             if 'TTL' in record:
                 final_records[f'TTL{index}'] = record['TTL']
             index += 1
