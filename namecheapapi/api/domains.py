@@ -145,6 +145,17 @@ class DomainAPI(Session):
         xml = self._call(DOMAINS_RENEW, query).find(
             self._tag('DomainRenewResult'))
 
+        try:
+            expiration = datetime.strptime(xml.find(
+                self._tag('DomainDetails')).find(
+                self._tag('ExpiredDate')).text, '%-m/%d/%Y %I:%M:%S %p'
+            )
+        except ValueError:
+            expiration = datetime.strptime(xml.find(
+                self._tag('DomainDetails')).find(
+                self._tag('ExpiredDate')).text, '%-m/%d/%y %I:%M:%S %p'
+            )
+
         return {
             'Domain': xml.get('DomainName'),
             'ID': int(xml.get('DomainID')),
@@ -152,10 +163,7 @@ class DomainAPI(Session):
             'OrderID': int(xml.get('OrderID')),
             'TransactionID': int(xml.get('TransactionID')),
             'ChargedAmount': float(xml.get('ChargedAmount')),
-            'Expiration':
-                datetime.strptime(xml.find(
-                    self._tag('DomainDetails')).find(
-                    self._tag('ExpiredDate')).text, '%m/%d/%Y %I:%M:%S %p')
+            'Expiration': expiration
         }
 
     def reactivate(self, domain: str, years: int = 1,
