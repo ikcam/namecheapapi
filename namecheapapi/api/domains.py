@@ -613,7 +613,10 @@ class DomainAPI(Session):
                 DOMAINS_SET_CUSTOM_NS, query).find(
                 self._tag('DomainDNSSetCustomResult'))
 
-        return xml.get('Updated').lower() == 'true'
+        try:
+            return xml.get('Updated').lower() == 'true'
+        except AttributeError:
+            return False
 
     def get_nameservers(self, domain: typing.Sequence) -> dict:
         """Get list of nameservers
@@ -687,7 +690,10 @@ class DomainAPI(Session):
             DOMAINS_SET_HOSTS, query).find(
             self._tag('DomainDNSSetHostsResult'))
 
-        return xml.get('IsSuccess').lower() == 'true'
+        try:
+            return xml.get('IsSuccess').lower() == 'true'
+        except AttributeError:
+            return False
 
     def get_email_forwarding(self):
         pass
