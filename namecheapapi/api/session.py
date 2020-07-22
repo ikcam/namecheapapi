@@ -3,7 +3,13 @@
 import re
 from datetime import datetime
 from urllib.parse import urlencode
-from urllib.request import urlopen, Request
+try:
+    import requests
+    REQUESTS = True
+except ModuleNotFoundError:
+    from urllib.request import urlopen, Request
+    REQUESTS = False
+
 from xml.etree.ElementTree import fromstring
 from xml.etree.ElementTree import tostring
 from xml.etree.ElementTree import Element
@@ -27,7 +33,7 @@ class Session:
 
     def __init__(self, api_user: str, api_key: str, username: str,
                  client_ip: str, sandbox: bool = True,
-                 coupon: str = None) -> None:
+                 coupon: str = None, proxies: dict = {}) -> None:
         """API initialization.
 
         Arguments:
@@ -50,6 +56,7 @@ class Session:
         self.errors = []
         self.warnings = []
         self.coupon = coupon
+        self.proxies = proxies
         self.gmt_offset = None
 
     @property
@@ -100,10 +107,25 @@ class Session:
         if post:
             url = self.url
             data = self._form_query(command, query).encode('ascii')
-            raw_xml = urlopen(Request(url, data)).read().decode('utf-8')
+
+            if REQUESTS:
+                kwargs = {'data': data}
+                if self.proxies:
+                    kwargs['proxies'] = self.proxies
+                res = requests.post(url, **kwargs)
+                raw_xml = res.content.decode('utf-8')
+            else:
+                raw_xml = urlopen(Request(url, data)).read().decode('utf-8')
         else:
             url = self.url + self._form_query(command, query)
-            raw_xml = urlopen(url).read().decode('utf-8')
+            if REQUESTS:
+                kwargs = {'data': data}
+                if self.proxies:
+                    kwargs['proxies'] = self.proxies
+                res = requests.get(url, **kwargs)
+                raw_xml = res.content.decode('utf-8')
+            else:
+                raw_xml = urlopen(url).read().decode('utf-8')
 
         xml = fromstring(raw_xml)
 
