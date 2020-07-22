@@ -119,7 +119,7 @@ class Session:
         else:
             url = self.url + self._form_query(command, query)
             if REQUESTS:
-                kwargs = {'data': data}
+                kwargs = {}
                 if self.proxies:
                     kwargs['proxies'] = self.proxies
                 res = requests.get(url, **kwargs)
