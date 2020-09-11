@@ -89,7 +89,7 @@ class DomainAPI(Session):
 
         query = {**query, **address}
 
-        xml = self._call(DOMAINS_REGISTER, query, post=True).find(
+        xml = self._call(DOMAINS_REGISTER, query).find(
             self._tag('DomainCreateResult'))
 
         return {
