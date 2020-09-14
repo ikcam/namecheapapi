@@ -145,16 +145,25 @@ class DomainAPI(Session):
         xml = self._call(DOMAINS_RENEW, query).find(
             self._tag('DomainRenewResult'))
 
-        try:
-            expiration = datetime.strptime(xml.find(
-                self._tag('DomainDetails')).find(
-                self._tag('ExpiredDate')).text, '%-m/%d/%Y %I:%M:%S %p'
-            )
-        except ValueError:
-            expiration = datetime.strptime(xml.find(
-                self._tag('DomainDetails')).find(
-                self._tag('ExpiredDate')).text, '%-m/%d/%y %I:%M:%S %p'
-            )
+        expiration = None
+        input_formats = [
+            '%-m/%d/%Y %I:%M:%S %p',
+            '%-m/%d/%y %I:%M:%S %p',
+            '%-m/%d/%y %-I:%M:%S %p'
+        ]
+
+        for format_ in input_formats:
+            try:
+                expiration = datetime.strptime(xml.find(
+                    self._tag('DomainDetails')).find(
+                    self._tag('ExpiredDate')).text, format_
+                )
+                break
+            except ValueError:
+                pass
+
+        if not expiration:
+            raise ValueError("Invalid date")
 
         return {
             'Domain': xml.get('DomainName'),
