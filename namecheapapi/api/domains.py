@@ -146,6 +146,11 @@ class DomainAPI(Session):
             self._tag('DomainRenewResult'))
 
         expiration = None
+        expiration_txt = xml.find(
+            self._tag('DomainDetails')
+        ).find(
+            self._tag('ExpiredDate')
+        ).text
         input_formats = [
             '%-m/%d/%Y %I:%M:%S %p',
             '%-m/%d/%y %I:%M:%S %p',
@@ -154,16 +159,13 @@ class DomainAPI(Session):
 
         for format_ in input_formats:
             try:
-                expiration = datetime.strptime(xml.find(
-                    self._tag('DomainDetails')).find(
-                    self._tag('ExpiredDate')).text, format_
-                )
+                expiration = datetime.strptime(expiration_txt, format_)
                 break
             except ValueError:
                 pass
 
         if not expiration:
-            raise ValueError("Invalid date")
+            raise ValueError('Invalid date "%s".' % expiration_txt)
 
         return {
             'Domain': xml.get('DomainName'),
