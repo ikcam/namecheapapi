@@ -154,7 +154,8 @@ class DomainAPI(Session):
         input_formats = [
             '%-m/%d/%Y %I:%M:%S %p',
             '%-m/%d/%y %I:%M:%S %p',
-            '%-m/%d/%y %-I:%M:%S %p'
+            '%-m/%d/%y %-I:%M:%S %p',
+            '%m/%d/%y %I:%M:%S %p'
         ]
 
         for format_ in input_formats:
